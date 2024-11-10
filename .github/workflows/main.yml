@@ -77,7 +77,7 @@ jobs:
       - name: main
         id: main
         run: |
-          test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' && set -x
+          (test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' || true) && set -x
           
           echo "::group::variables"
 
@@ -134,13 +134,13 @@ jobs:
           echo "artifact_dir=$artifact_dir" >> $GITHUB_OUTPUT
           mkdir "$artifact_dir"
 
-          test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' && cp "$configfile" "$artifact_dir"
+          (test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' || true) && cp "$configfile" "$artifact_dir"
           
           if [ -n "${{ matrix.kconfig }}" -a "${{ matrix.kconfig }}" != 'default' ]
           then
             kconfig_file="${GITHUB_WORKSPACE}/miryoku_zmk/config/$keyboard_split.conf"
             echo "${{ matrix.kconfig }}" >> "$kconfig_file"
-            test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' && cp "$kconfig_file" "$artifact_dir"
+            (test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' || true) && cp "$kconfig_file" "$artifact_dir"
             run_name="$run_name kconfig_"`echo "${{ matrix.kconfig }}" | md5sum | head -c "$hash_length"`
           fi
 
@@ -198,7 +198,7 @@ jobs:
             outboard_file="${GITHUB_WORKSPACE}/miryoku_zmk/.github/workflows/outboards/$outboard"
             if [ -f "$outboard_file" ]
             then
-              test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' && cp "$outboard_file" "$artifact_dir"
+              (test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' || true) && cp "$outboard_file" "$artifact_dir"
               . "$outboard_file"
               outboard_dir="${GITHUB_WORKSPACE}/$outboard"
               if [ -n "$outboard_repository" -a -n "$outboard_ref" -a -n "$outboard_from" -a -n "$outboard_to" ]
@@ -362,10 +362,10 @@ jobs:
             if [ -f "$file" ]
             then
               cp "$file" "${{ steps.main.outputs.artifact_dir }}"
-              test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' || break
+              (test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' || true) || break
             fi
           done
-          test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' && cp "${GITHUB_WORKSPACE}/zmk/app/build/zephyr/.config" "${{ steps.main.outputs.artifact_dir }}"
+          (test "$MIRYOKU_DEBUG" = 'MIRYOKU_DEBUG_TRUE' || true) && cp "${GITHUB_WORKSPACE}/zmk/app/build/zephyr/.config" "${{ steps.main.outputs.artifact_dir }}"
           echo "::endgroup::"
       - name: upload
         uses: actions/upload-artifact@v4
